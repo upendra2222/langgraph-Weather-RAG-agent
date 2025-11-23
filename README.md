@@ -1,8 +1,5 @@
-That's a great addition\! Clear instructions for setting up the Python environment are crucial for any project's `README.md`.
 
-Here is the updated `README.md` content, with the new **"Setup Python Environment"** section added under **"Prerequisites"**.
-
-# ☁️ LangGraph Weather + PDF RAG Demo
+# ☁️ LangGraph Weather + PDF RAG
 
 This project demonstrates a multi-functional AI agent built using **LangGraph** (for state management and routing) and **LangChain**. The agent can handle two distinct types of queries:
 
@@ -35,8 +32,8 @@ The agent's core is a **router node** that directs the user's query to the appro
 ### 1\. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
-cd <your-repo-name>
+git clone https://github.com/upendra2222/langgraph-Weather-RAG-agent.git
+cd langgraph-Weather-RAG-agent
 ```
 
 ### 2\. Setup Python Environment 🐍
@@ -135,5 +132,3 @@ The system is built around a LangGraph `StateGraph` which manages the `AgentStat
 | **UI** | `streamlit_app.py` | Manages file upload, state, indexing trigger, and displays results/debug info. |
 
 -----
-
-Would you like to refine any other sections of the `README.md` or perhaps focus on deployment instructions next?
