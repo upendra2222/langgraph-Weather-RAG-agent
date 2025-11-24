@@ -16,6 +16,7 @@ def test_weather_node_calls_llm_and_sets_answer():
     mock_weather = MagicMock()
     mock_weather.get_weather.return_value = {"weather": "sunny"}
 
+    # Mock vectorstore is irrelevant here
     resources = AppResources(llm=mock_llm, weather_client=mock_weather, pdf_vectorstore=None)
 
     node = weather_node(resources)
@@ -32,7 +33,7 @@ def test_rag_node_calls_retriever_and_llm_and_sets_answer():
     mock_resp.content = "Answer from PDF"
     mock_llm.invoke.return_value = mock_resp
 
-    # mock retriever with get_relevant_documents
+    # mock retriever with results
     class MockRetriever:
         def get_relevant_documents(self, query):
             return [Document(page_content="Doc text 1"), Document(page_content="Doc text 2")]
@@ -48,3 +49,32 @@ def test_rag_node_calls_retriever_and_llm_and_sets_answer():
 
     assert isinstance(final.get("context_docs"), list)
     assert final["answer"] == "Answer from PDF"
+    # Ensure LLM was called
+    assert mock_llm.invoke.called
+
+
+def test_rag_node_empty_retrieval():
+    # 🌟 NEW TEST: Ensures fallback message is used when no documents are found.
+    mock_llm = MagicMock()
+    mock_llm.invoke.return_value = MagicMock() # Should not be called
+
+    # mock retriever returns empty list
+    class MockRetriever:
+        def get_relevant_documents(self, query):
+            return []
+
+    mock_vectorstore = MagicMock()
+    mock_vectorstore.as_retriever.return_value = MockRetriever()
+
+    resources = AppResources(llm=mock_llm, weather_client=MagicMock(), pdf_vectorstore=mock_vectorstore)
+
+    node = rag_node(resources)
+    query = "Non-existent topic"
+    state = {"query": query}
+    final = node(state)
+
+    # Check for the custom error message we added to graph.py
+    assert "I could not find any relevant information" in final["answer"]
+    assert f"for the query: '{query}'" in final["answer"]
+    # Ensure LLM was NOT called
+    assert not mock_llm.invoke.called
